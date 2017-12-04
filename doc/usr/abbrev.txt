@@ -1,0 +1,10 @@
+authentication authn
+authenticated authned
+authenticate authnt
+authentic authnc
+
+author authr
+authorization authrn
+authorized authrzed
+authored authred
+authorize authrz

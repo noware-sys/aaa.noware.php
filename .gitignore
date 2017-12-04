@@ -46,19 +46,7 @@ cfg
 lib
 doc.html
 
-src/db/sqlite.c
-
-#LICENSE.txt
-
-other
-
 # Temporary
-noware.hxx
-src/list*
-src/pc*
-src/.pc
-src/calculator*
-src/zmq*
-#src/pmach*
-src/mach/.screen
-src/net/-node*
+src/db.php
+src/grp.php
+src/permisson.php

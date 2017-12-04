@@ -26,8 +26,8 @@
 		
 		public function __destruct ()
 		{
-			$this -> db -> disconnect ();
-			$this -> deauthnt ();
+			//$this -> deauthnt ();
+			//$this -> db -> disconnect ();
 		}
 		
 		/*
@@ -175,8 +175,8 @@
 			
 			$result = array ();
 			
-			if (!$this -> inited ())
-				return $result;
+			//if (!$this -> inited ())
+			//	return $result;
 			
 			if (!$this -> authed ())
 				return $result;
@@ -192,8 +192,8 @@
 			
 			//$result = array ();
 			
-			if (!$this -> inited ())
-				return false;
+			//if (!$this -> inited ())
+			//	return false;
 			
 			if (!$this -> authed ())
 				return false;
@@ -218,8 +218,8 @@
 		//public static function add ($name/*, $key = null*/)
 		public function add ($name, $key = '')
 		{
-			if (!$this -> inited ())
-				return false;
+			//if (!$this -> inited ())
+			//	return false;
 			
 			if (!$this -> authed ())
 				return false;
@@ -273,7 +273,9 @@
 				return false;
 			}
 			
-			if (!empty ($result))
+			if (empty ($result))
+				return false;
+			else
 			{
 				if (count ($result) > 1)
 					return false;
@@ -281,11 +283,9 @@
 				//$this -> id = $result [0] [1];
 				$this -> id = $result [0] [0];
 				//$this -> name = $name;
-				
+				//var_dump ($this -> id);
 				return true;
 			}
-			else
-				return false;
 		}
 		
 		/*
@@ -307,6 +307,11 @@
 			return $result ['data'] [0] [0] > 0;
 		}
 		*/
+		
+		public function authed ()
+		{
+			return $this -> id != null;
+		}
 		
 		// deauthenticate
 		// anonymize
@@ -359,8 +364,8 @@
 		//public static function enabled ($name)
 		public function enabled ($name)
 		{
-			if (!$this -> inited ())
-				return false;
+			//if (!$this -> inited ())
+			//	return false;
 			
 			if (!$this -> authed ())
 				return false;
@@ -386,8 +391,8 @@
 		//public static function disable ($name)
 		public function disable ($name)
 		{
-			if (!$this -> inited ())
-				return false;
+			//if (!$this -> inited ())
+			//	return false;
 			
 			if (!$this -> authed ())
 				return false;
@@ -407,8 +412,8 @@
 		
 		protected function rename ($old_name, $new_name)
 		{
-			if (!$this -> inited ())
-				return false;
+			//if (!$this -> inited ())
+			//	return false;
 			
 			if (!$this -> authed ())
 				return false;
@@ -494,15 +499,35 @@
 		
 		public function __sleep ()
 		{
+			/*
+			echo '<pre>';
+			echo 'serializing noware::usr' . PHP_EOL;
+			var_dump ($this -> id);
+			echo '</pre>';
+			*/
 			return array ('db', 'id');
 		}
 		
-		//public function __wakeup ()
-		//{
-			//var_dump ($this -> database);
-			//$this -> database -> reconnect ();
+		/*
+		public function __wakeup ()
+		{
+			//echo '<pre>';
+			//echo 'deserializing noware::usr' . PHP_EOL;
+			//var_dump ($this);
+			//if ($this -> db != null)
+			//$this -> message = $this -> error = "";
+			//var_dump ($this -> id);
+			//var_dump ($this -> link -> getAttribute(PDO::ATTR_SERVER_INFO));
+			//var_dump ('noware::usr::__wakeup()', $this -> db);
+			//$this -> db -> reconnect ();
 			//$this -> database = new database ();
-		//}
+			//$this -> db -> wakeup ();
+			//$this -> db = new db ();
+			//$this -> db -> connect ($exception, 'sqlite:/mnt/data/sys.db', 'root');
+			//echo '</pre>';
+		}
+		*/
+		
 		/*
 		public static function types ()
 		{
@@ -556,37 +581,56 @@
 		
 		public function may ()
 		{
+			//echo '<pre>';
+			
 			switch (func_num_args ())
 			{
-				case 3:
+				case 4:
 					$actor = func_get_arg (0);
 					$target_id = func_get_arg (1);
 					$target_key = func_get_arg (2);
 					$action = func_get_arg (3);
 					break;
-				case 2:
+				case 3:
 					$actor = $this -> id;
 					$target_id = func_get_arg (0);
 					$target_key = func_get_arg (1);
 					$action = func_get_arg (2);
 					break;
 				default:
+					//echo 'noware::usr::may()::case::default' . PHP_EOL;
 					return false;
 			}
+			
+			//var_dump ($actor, $target_id, $target_key, $action);
 			
 			//return false;
 			
 			
 			//$result = array ();
 			
+			/*
 			if (!$this -> inited ())
+			{
+				echo 'noware::usr::may()::!inited()' . PHP_EOL;
 				return false;
+			}
+			*/
 			
 			if (!$this -> authed ())
+			{
+				//echo 'noware::usr::may()::!authed()' . PHP_EOL;
 				return false;
+			}
 			
 			if (!$this -> may_sql ($sql))
+			{
+				//echo 'noware::usr::may()::!may_sql()' . PHP_EOL;
 				return false;
+			}
+			
+			//var_dump ($sql);
+			$sql = $sql [0] [0];
 			
 			/*
 			// First, check if the user is allowed to see the aked permission.
@@ -597,9 +641,14 @@
 				return false;
 			*/
 			
-			if (!$this -> db -> query ($exception, $result, $sql, array (':actor' => $actor, ':target_id' => $target_id, ':target_key' => $target_key), $this -> may_type () [$action]))
+			if (!$this -> db -> query ($exception, $result, $sql, array (':actor' => $actor, ':target_id' => $target_id, ':target_key' => $target_key, ':action' => $action, ':any' => '*')))
+			{
+				//echo 'noware::usr::may()::!query()' . PHP_EOL;
 				return false;
+			}
 			
+			//var_dump ($exception, $result);
+			//echo '</pre>';
 			return $result [0] [0] != 0;
 		}
 		
@@ -610,8 +659,8 @@
 		
 		protected function may_sql (&$result)
 		{
-			if (!$this -> inited ())
-				return false;
+			//if (!$this -> inited ())
+			//	return false;
 			
 			if (!$this -> authed ())
 				return false;
@@ -660,4 +709,11 @@
 				)
 			);
 		}
+		
+		/*
+		public function inited ()
+		{
+			return true;
+		}
+		*/
 	}
